@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+  <meta name="description" content="" />
+  <meta name="author" content="" />
+  <title>PIRSA ADMIN</title>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+  <link href="https://cdn.datatables.net/1.12.1/css/jquery.dataTables.min.css" rel="stylesheet" />
+  <link href="https://cdn.datatables.net/buttons/2.2.3/css/buttons.dataTables.min.css" rel="stylesheet" />
+  <link href="../css/styles.css" rel="stylesheet" />
+  <script src="https://use.fontawesome.com/releases/v6.1.0/js/all.js" crossorigin="anonymous"></script>
+</head>
+
+<body class="sb-nav-fixed">
+  <div id="load-screen"></div>
+  <div id="overlayer"></div>
+  <span class="loader">
+    <span class="loader-inner"></span>
+  </span>
+  <div id="menu"></div>
+  <div id="layoutSidenav_content" class="content-left">
+    <main>
+      <div class="container-fluid px-4">
+        <h1 class="mt-4">Gestión</h1>
+        <ol class="breadcrumb mb-4">
+          <li class="breadcrumb-item">Dashboard</li>
+          <li class="breadcrumb-item active">Gestión Usuarios</li>
+        </ol>
+        <div class="card mb-4">
+          <div class="card-header">
+            <i class="fas fa-table me-1"></i>
+            Consulta de usuarios
+          </div>
+          <div class="card-body">
+            <table id="datatablesSimple" class="display" width="100%">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>ROLE</th>
+                  <th>TELÉFONO</th>
+                  <th>ESTADO</th>
+                  <th>EMAIL</th>
+                  <th>NOMBRE</th>
+                  <th>EVENTOS</th>
+                </tr>
+              </thead>
+            </table>
+          </div>
+        </div>
+      </div>
+    </main>
+    <footer class="py-4 bg-light mt-auto">
+      <div class="container-fluid px-4">
+        <div class="d-flex align-items-center justify-content-between small">
+          <div class="text-muted">Copyright &copy; Grupo Arcoing</div>
+        </div>
+      </div>
+    </footer>
+  </div>
+  <div class="modal" tabindex="-1" id="action_modal">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <form method="post" id="sample_form">
+          <div class="modal-header">
+            <h5 class="modal-title" id="dynamic_modal_title">Add Data</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <div class="mb-3">
+              <label class="form-label">ID</label>
+              <input disabled type="text" name="profile_id_" id="profile_id_" class="form-control" />
+            </div>
+            <div class="mb-3">
+              <div style="display: none" class="direccion">
+                <label class="form-label">Dirección</label>
+                <input type="text" id="address" name="address" class="form-control" />
+              </div>
+              <div style="display: none" class="habitantes">
+                <label class="form-label">Habitantes</label>
+                <input type="text" id="population" name="population" class="form-control" maxlength="2" />
+              </div>
+              <div style="display: none" class="tel">
+                <label class="form-label">Telefono</label>
+                <input type="number" id="tel" name="tel" class="form-control" maxlength="10" />
+              </div>
+              <div style="display: none" class="business">
+                <label class="form-label">Business</label>
+                <input type="text" id="business" name="business" class="form-control" />
+              </div>
+              <div style="display: none" class="documento">
+                <label class="form-label">Documento</label>
+                <input type="number" id="document" name="document" class="form-control" />
+              </div>
+              <div style="display: none" class="capacidad">
+                <label class="form-label">Capacidad</label>
+                <input type="number" id="Capacidad" name="Capacidad" class="form-control" maxlength="4" />
+              </div>
+              <div style="display: none" class="placa">
+                <label class="form-label">Placa</label>
+                <input type="text" id="placa" name="placa" class="form-control" maxlength="6" />
+              </div>
+              <label class="form-label">Estado</label>
+              <select name="state" id="state" class="form-control">
+                <option value="">Selecione</option>
+                <option value="true">Activar</option>
+                <option value="false">Desactivar</option>
+              </select>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <input type="hidden" name="id" id="id" value="" />
+            <input type="hidden" name="action" id="action" value="Add" />
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+              Cerrar
+            </button>
+            <button disabled="true" type="submit" class="btn btn-primary" id="action_button">
+              Add
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+    crossorigin="anonymous"></script>
+  <script src="https://code.jquery.com/jquery-3.5.1.js"></script>
+  <script src="https://cdn.datatables.net/1.12.1/js/jquery.dataTables.min.js"></script>
+  <script src="https://cdn.datatables.net/buttons/2.2.3/js/dataTables.buttons.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/pdfmake.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script>
+  <script src="https://cdn.datatables.net/buttons/2.2.3/js/buttons.html5.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script src="../js/scripts.js"></script>
+  <script type="module">
+    $(document).ready(function () {
+      $("#menu").load("menu.html");
+      var settings = {
+        url: "https://o3rs4l4td1.execute-api.us-east-1.amazonaws.com/prod/profile",
+        method: "GET",
+        timeout: 0,
+      };
+
+      $.ajax(settings).done(function (response) {
+        let requests = response.Items.map((doc) => {
+          let codigoRol = '';
+          if (doc?.role === '001') {
+            codigoRol = 'RS001'
+          } else if (doc?.role === '002') {
+            codigoRol = 'NR002'
+          } else if (doc?.role === '003') {
+            codigoRol = 'R003'
+          } else {
+            codigoRol = 'T004'
+          }
+          return {
+            _id: codigoRol + '-' + doc?.profile_id.split('-')[1]?.toLowerCase() || "",
+            role: doc?.role || "",
+            phone: doc?.phone || "",
+            state: doc.state ? "Activado" : "Desactivado",
+            email: doc?.email || "",
+            name: doc?.name || "",
+            eventos:
+              '<button type="button" class="btn btn-warning btn-sm edit" data-id="' +
+              doc.profile_id +
+              '">Editar</button>',
+
+          };
+        });
+
+        $("#datatablesSimple").DataTable({
+          info: true,
+          dom: "Bfrtip",
+          language: {
+            decimal: "",
+            emptyTable: "No hay información",
+            info: "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
+            infoEmpty: "Mostrando 0 to 0 of 0 Entradas",
+            infoFiltered: "(Filtrado de _MAX_ total entradas)",
+            infoPostFix: "",
+            thousands: ",",
+            lengthMenu: "Mostrar _MENU_ Entradas",
+            loadingRecords: "Cargando...",
+            processing: "Procesando...",
+            search: "Buscar:",
+            zeroRecords: "Sin resultados encontrados",
+            paginate: {
+              first: "Primero",
+              last: "Ultimo",
+              next: "Siguiente",
+              previous: "Anterior",
+            },
+          },
+          buttons: [
+            "copyHtml5",
+            "excelHtml5",
+            "csvHtml5",
+            {
+              extend: "pdfHtml5",
+              orientation: "landscape",
+              pageSize: "LEGAL",
+              text: 'PDF',
+              titleAttr: "PDF",
+            },
+            {
+              text: "Recargar",
+              action: function (e, dt, node, config) {
+                location.reload();
+              },
+            },
+          ],
+          data: requests,
+          bDestroy: true,
+          columns: [
+            { data: "_id" },
+            { data: "role" },
+            { data: "phone" },
+            { data: "state" },
+            { data: "email" },
+            { data: "name" },
+            { data: "eventos" },
+          ],
+        });
+
+        $("#overlayer").delay(500).fadeOut("slow");
+        $(".loader").delay(500).fadeOut("slow");
+      });
+
+      $(document).on("click", ".edit", function () {
+        $("#action_button").prop("disabled", true);
+
+        $("#load-screen")
+          .delay(1000)
+          .fadeOut(function () {
+            $(this).remove();
+          });
+
+        var id = $(this).data("id");
+
+        $("#dynamic_modal_title").text("Actualizar usuario");
+
+        $("#action").val("Editar");
+
+        $("#state").val("");
+
+        $("#action_button").text("Editar");
+
+        $(".text-danger").text("");
+
+        $("#profile_id_").val(id);
+
+        $("#action_modal").modal("show");
+
+        var settings = {
+          url:
+            "https://o3rs4l4td1.execute-api.us-east-1.amazonaws.com/prod/profile/" +
+            id,
+          method: "GET",
+          timeout: 0,
+        };
+
+        $.ajax(settings).done(function (response) {
+          $("#state").val(String(response.Item.state));
+          if (response.Item.role === "001") {
+            $(".direccion").css("display", "block");
+            $("#address").val(response.Item.address);
+            $(".habitantes").css("display", "block");
+            $("#population").val(response.Item.habitants);
+            $(".tel").css("display", "block");
+            $("#tel").val(response.Item.phone);
+            $(".placa").css("display", "none");
+            $(".business").css("display", "none");
+            $(".documento").css("display", "none");
+            $(".Capacidad").css("display", "none");
+          }
+          if (response.Item.role === "002") {
+            $(".direccion").css("display", "block");
+            $("#address").val(response.Item.address);
+            $(".business").css("display", "block");
+            $("#business").val(response.Item.business);
+            $(".documento").css("display", "block");
+            $("#document").val(response.Item.document);
+            $(".tel").css("display", "block");
+            $("#tel").val(response.Item.phone);
+            $(".placa").css("display", "none");
+            $(".Capacidad").css("display", "none");
+            $(".habitantes").css("display", "none");
+          }
+          if (response.Item.role === "003") {
+            $(".capacidad").css("display", "block");
+            $("#Capacidad").val(response.Item.capacity);
+            $(".placa").css("display", "block");
+            $("#placa").val(response.Item.plate);
+            $(".tel").css("display", "block");
+            $("#tel").val(response.Item.phone);
+            $(".documento").css("display", "none");
+            $(".direccion").css("display", "none");
+            $(".habitantes").css("display", "none");
+            $(".business").css("display", "none");
+          }
+          if (response.Item.role === "004") {
+            $(".capacidad").css("display", "block");
+            $("#Capacidad").val(response.Item.capacity);
+            $(".business").css("display", "block");
+            $("#business").val(response.Item.business);
+            $(".documento").css("display", "block");
+            $("#document").val(response.Item.document);
+            $(".tel").css("display", "block");
+            $("#tel").val(response.Item.phone);
+            $(".direccion").css("display", "none");
+            $(".habitantes").css("display", "none");
+            $(".placa").css("display", "none");
+          }
+          localStorage.setItem("data", JSON.stringify(response));
+          $("#action_button").prop("disabled", false);
+        });
+      });
+
+      $("#sample_form").on("submit", function (event) {
+        event.preventDefault();
+        Swal.fire({
+          title: "¿Esta seguro de actualizar este usuario?",
+          showCancelButton: true,
+          confirmButtonText: "Aceptar",
+          cancelButtonText: `Cancelar`,
+        }).then((confirm) => {
+          if (confirm.isConfirmed) {
+            const state = $("#state").val();
+
+            let data = JSON.parse(localStorage.getItem("data"));
+
+            data.Item.state = state === "true" ? true : false;
+            if (data.Item.role === "001") {
+              data.Item.address = $("#address").val();
+              data.Item.habitants = $("#population").val();
+              data.Item.phone = $("#tel").val();
+            }
+            if (data.Item.role === "002") {
+              data.Item.address = $("#address").val();
+              data.Item.business = $("#business").val();
+              data.Item.phone = $("#tel").val();
+              data.Item.document = $("#document").val();
+            }
+            if (data.Item.role === "003") {
+              data.Item.capacity = $("#Capacidad").val();
+              data.Item.plate = $("#placa").val();
+              data.Item.phone = $("#tel").val();
+            }
+            if (data.Item.role === "004") {
+              data.Item.capacity = $("#Capacidad").val();
+              data.Item.business = $("#business").val();
+              data.Item.phone = $("#tel").val();
+              data.Item.document = $("#document").val();
+            }
+            if (state == "") {
+              alert("Complete los campos");
+            } else {
+              var settings = {
+                url: "https://o3rs4l4td1.execute-api.us-east-1.amazonaws.com/prod/profile",
+                method: "POST",
+                headers: {
+                  "x-api-key": "51628M1mMb7HO5dVmW97L6jFKYPzWGeVaJ2R9ZsB",
+                  "Content-Type": "application/json",
+                },
+                data: JSON.stringify(data.Item),
+              };
+
+
+              $.ajax(settings).done(async function (response) {
+                await save(response.Item.profile_id, response.Item.state)
+                $("#action_modal").modal("hide");
+                location.reload();
+              });
+            }
+          }
+        });
+      });
+    });
+
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.9.4/firebase-app.js";
+    import {
+      collection,
+      getFirestore,
+      DocumentSnapshot,
+      onSnapshot,
+      query,
+      QuerySnapshot,
+      where,
+      deleteDoc,
+      setDoc,
+      doc,
+      updateDoc
+    } from "https://www.gstatic.com/firebasejs/9.9.4/firebase-firestore.js";
+
+    let arrayData = [];
+    const firebaseConfig = {
+      apiKey: "AIzaSyCkzyHgbeedyrkG8-RjOcb6RhsT21dW8A8",
+      authDomain: "pirso-3fcb4.firebaseapp.com",
+      databaseURL: "https://pirso-3fcb4-default-rtdb.firebaseio.com",
+      projectId: "pirso-3fcb4",
+      storageBucket: "pirso-3fcb4.appspot.com",
+      messagingSenderId: "890693988099",
+      appId: "1:890693988099:web:c531d9b19c21e4b559c336",
+      measurementId: "G-Q4YQ9L5HR1",
+    };
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    export async function save(id, data) {
+      return await updateDoc(doc(db, 'pickups', id), { "user.state": data });
+    }
+  </script>
+</body>
+
+</html>

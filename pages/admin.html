@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, shrink-to-fit=no"
+    />
+    <meta name="description" content="" />
+    <meta name="author" content="" />
+    <title>PIRSA ADMIN</title>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    <link
+      href="https://cdn.datatables.net/1.12.1/css/jquery.dataTables.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdn.datatables.net/buttons/2.2.3/css/buttons.dataTables.min.css"
+      rel="stylesheet"
+    />
+    <link href="../css/styles.css" rel="stylesheet" />
+    <script
+      src="https://use.fontawesome.com/releases/v6.1.0/js/all.js"
+      crossorigin="anonymous"
+    ></script>
+  </head>
+  <body class="sb-nav-fixed">
+    <div id="load-screen"></div>
+    <div id="overlayer"></div>
+    <span class="loader">
+      <span class="loader-inner"></span>
+    </span>
+    <div id="menu"></div>
+    <div id="layoutSidenav_content" class="content-left">
+      <main>
+        <div class="container-fluid px-4">
+          <h1 class="mt-4">Reportes</h1>
+          <ol class="breadcrumb mb-4">
+            <li class="breadcrumb-item">Dashboard</li>
+            <li class="breadcrumb-item active">Solicitudes</li>
+          </ol>
+          <div class="card mb-4">
+            <div class="card-header">
+              <i class="fas fa-table me-1"></i>
+              Solicitudes
+            </div>
+            <div class="card-body">
+              <div class="d-flex p-2">
+                <div class="pe-2">
+                  <label for="">Fecha inicio: </label>
+                  <input id="start-date" class="" type="date">
+                </div>
+                <div class="pe-2">
+                  <label for="">Fecha fin: </label>
+                  <input id="end-date" class="" type="date">
+                </div>
+                <div>
+                  <button id="filter" class="">Filtrar</button>
+                </div>
+              </div>
+              <table id="datatablesSimple" class="display" width="100%">
+                <thead>
+                  <tr>
+                    <th>ID del servicio</th>
+                    <th>ID del solicitante</th>
+                    <th>Nombre del solicitante</th>
+                    <th>Nombre Completo</th>
+                    <th>Dirección</th>
+                    <th>Cantidad de recipientes</th>
+                    <th>Fecha y hora solicitud</th>
+                    <th>ID Recolector</th>
+                    <th>Nombre Recolector</th>
+                    <th>Tiempo estimado llegada</th>
+                    <th>ID Transformador</th>
+                    <th>Nombre transformador</th>
+                    <th>Fecha y hora Aceptación</th>
+                    <th>Fecha y hora recogida</th>
+                    <th>Peso real RSO</th>
+                    <th>Fecha y hora entrega</th>
+                    <th>Motivo de cancelación</th>
+                    <th>Estado de la solicitud</th>
+                  </tr>
+                </thead>
+              </table>
+            </div>
+          </div>
+        </div>
+      </main>
+      <footer class="py-4 bg-light mt-auto">
+        <div class="container-fluid px-4">
+          <div class="d-flex align-items-center justify-content-between small">
+            <div class="text-muted">Copyright &copy; grupo arcoing</div>
+            <div>
+              <a href="#">Privacy Policy</a>
+              &middot;
+              <a href="#">Terms &amp; Conditions</a>
+            </div>
+          </div>
+        </div>
+      </footer>
+    </div>
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+      crossorigin="anonymous"
+    ></script>
+    <script src="../js/scripts.js"></script>
+    <script src="https://code.jquery.com/jquery-3.5.1.js"></script>
+    <script src="https://cdn.datatables.net/1.12.1/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.2.3/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/pdfmake.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.2.3/js/buttons.html5.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js"></script>
+    <script type="module">
+      $(document).ready(function () {
+        $("#menu").load("menu.html");
+
+        const load = (startDate, endDate) => {          
+          var settings = {
+            url: `https://o3rs4l4td1.execute-api.us-east-1.amazonaws.com/prod/services?startDate=${moment(startDate).format("yyyy-MM-DD")}&endDate=${moment(endDate).format("yyyy-MM-DD")}`,
+            method: "GET",
+            timeout: 0,
+          };
+          $.ajax(settings).done(function (response) {
+            console.log(response)
+            let requests = response.map((doc) => {
+              console.log(doc);
+              let codigoRol = '';
+              if(doc?.client.role === '001'){
+                codigoRol = 'RS001'
+              }else if(doc?.client.role === '002'){
+                codigoRol = 'NR002'
+              } else if(doc?.client.role === '003') {
+                codigoRol = 'R003'
+              }else {
+                codigoRol = 'T004'
+              }
+              return {
+                id: 'S' + doc._id || "",
+                idclient: doc.client?.sub.split('-')[1].toLowerCase() ? codigoRol + '-' + doc.client?.sub.split('-')[1].toLowerCase() :  "",
+                nameclient:  doc?.client.role === '002' ? doc.client.business :  doc.client.name ,
+                lastname:  doc.client.name + '  ' + doc?.client.family_name || "",
+                address: doc.client.address || "",
+                bags: doc.bags_received || "",
+                created_at: doc.created_at
+                  ? moment(doc.created_at).format("DD/MM/yyyy h:mm:ss a")
+                  : "",
+                idCollector: doc.collector?.sub.split('-')[1].toLowerCase() ? 'R003-' + doc.collector?.sub.split('-')[1].toLowerCase() : "",
+                nameCollector: doc.collector?.name || "",
+                estimated_time: doc.estimated_time || "",
+                idTransformer:  doc.transformer?.sub.split('-')[1].toLowerCase() ?  'T004-' + doc.transformer?.sub.split('-')[1].toLowerCase() :  "",
+                nameTransformer: doc.transformer?.business || "",
+                aceptDate: doc.collector?.created_at
+                  ? moment(doc.collector?.created_at).format(
+                      "DD/MM/yyyy h:mm:ss a"
+                    )
+                  : "",
+                delivered_at: doc.collector?.pickup_at
+                  ? moment(doc.collector?.pickup_at).format(
+                      "DD/MM/yyyy h:mm:ss a"
+                    )
+                  : "",
+                weight: doc.weight || 0,
+                completeDate: doc.transformer?.delivered_at
+                  ? moment(doc.transformer?.delivered_at).format(
+                      "DD/MM/yyyy h:mm:ss a"
+                    )
+                  : "",
+                reason: doc.reason || "",
+                status: doc.status || "",
+              };
+            });
+
+            $("#datatablesSimple").DataTable({
+              pageLength: 10,
+              paging: true,
+              lengthMenu: [[10, 25, 50, -1], [10, 25, 50, "All"]],
+              dom: "Bfrtip",
+              buttons: [
+                "copyHtml5",
+                "excelHtml5",
+                "csvHtml5",
+                {
+                  text: "Recargar",
+                  action: function (e, dt, node, config) {
+                    location.reload();
+                  },
+                },
+              ],
+              data: requests,
+              language: {
+                decimal: "",
+                emptyTable: "No hay información",
+                info: "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
+                infoEmpty: "Mostrando 0 to 0 of 0 Entradas",
+                infoFiltered: "(Filtrado de _MAX_ total entradas)",
+                infoPostFix: "",
+                thousands: ",",
+                lengthMenu: "Mostrar _MENU_ Entradas",
+                loadingRecords: "Cargando...",
+                processing: "Procesando...",
+                search: "Buscar:",
+                zeroRecords: "Sin resultados encontrados",
+                paginate: {
+                  first: "Primero",
+                  last: "Ultimo",
+                  next: "Siguiente",
+                  previous: "Anterior",
+                },
+              },
+              bDestroy: true,
+              columns: [
+                { data: "id" },
+                { data: "idclient" },
+                { data: "nameclient" },
+                { data: 'lastname' },
+                { data: "address" },
+                { data: "bags" },
+                { data: "created_at" },
+                { data: "idCollector" },
+                { data: "nameCollector" },
+                { data: "estimated_time" },
+                { data: "idTransformer" },
+                { data: "nameTransformer" },
+                { data: "aceptDate" },
+                { data: "delivered_at" },
+                { data: "weight" },
+                { data: "completeDate" },
+                { data: "reason" },
+                { data: "status" },
+              ],
+            });
+            $("#overlayer").delay(500).fadeOut("slow");
+            $(".loader").delay(500).fadeOut("slow");
+          });
+        }
+
+        const endDate = new Date();
+        endDate.setMonth(endDate.getMonth() - 1);
+
+        load(endDate, new Date());
+
+        $("#start-date").val(moment(endDate).format("yyyy-MM-DD"));
+        $("#end-date").val(moment(new Date()).format("yyyy-MM-DD"));
+
+        $("#filter").click(() => {
+          load( $("#start-date").val(), $("#end-date").val());
+        });
+      });
+    </script>
+  </body>
+</html>

@@ -1,0 +1,170 @@
+<script type="module">
+  $(document).ready(function () {
+    // Toggle the side navigation
+    const sidebarToggle = document.body.querySelector("#sidebarToggle");
+    // if(location.pathname !== '/pages/login.html'){
+    //     inactivityTime();
+    // }
+    if (sidebarToggle) {
+      // Uncomment Below to persist sidebar toggle between refreshes
+      // if (localStorage.getItem('sb|sidebar-toggle') === 'true') {
+      //     document.body.classList.toggle('sb-sidenav-toggled');
+      // }
+      sidebarToggle.addEventListener("click", (event) => {
+        event.preventDefault();
+        document.body.classList.toggle("sb-sidenav-toggled");
+        localStorage.setItem(
+          "sb|sidebar-toggle",
+          document.body.classList.contains("sb-sidenav-toggled")
+        );
+      });
+    }
+  });
+</script>
+<nav class="sb-topnav navbar navbar-expand navbar-dark bg-dark">
+  <a class="navbar-brand ps-3" href="#">PIRSA</a>
+  <button
+    class="btn btn-link btn-sm order-1 order-lg-0 me-4 me-lg-0"
+    id="sidebarToggle"
+    href="#!"
+  >
+    <i class="fas fa-bars"></i>
+  </button>
+  <form
+    class="d-none d-md-inline-block form-inline ms-auto me-0 me-md-3 my-2 my-md-0"
+  >
+    <div class="input-group"></div>
+  </form>
+  <ul class="navbar-nav ms-auto ms-md-0 me-3 me-lg-4">
+    <li class="nav-item dropdown">
+      <a
+        class="nav-link dropdown-toggle"
+        id="navbarDropdown"
+        href="#"
+        role="button"
+        data-bs-toggle="dropdown"
+        aria-expanded="false"
+        ><i class="fas fa-user fa-fw"></i
+      ></a>
+      <ul
+        class="dropdown-menu dropdown-menu-end"
+        aria-labelledby="navbarDropdown"
+      >
+        <li><a class="dropdown-item" href="login.html">Cerrar sesión</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+<div id="layoutSidenav">
+  <div id="layoutSidenav_nav">
+    <nav class="sb-sidenav accordion sb-sidenav-dark" id="sidenavAccordion">
+      <div class="sb-sidenav-menu">
+        <div class="nav">
+          <div class="sb-sidenav-menu-heading">Access</div>
+          <a
+            class="nav-link collapsed"
+            href="#"
+            data-bs-toggle="collapse"
+            data-bs-target="#collapseLayouts2"
+            aria-expanded="false"
+            aria-controls="collapseLayouts2"
+          >
+            <div class="sb-nav-link-icon"><i class="fas fa-columns"></i></div>
+            Gestión
+            <div class="sb-sidenav-collapse-arrow">
+              <i class="fas fa-angle-down"></i>
+            </div>
+          </a>
+          <div
+            class="collapse"
+            id="collapseLayouts2"
+            aria-labelledby="headingOne"
+            data-bs-parent="#sidenavAccordion"
+          >
+            <nav class="sb-sidenav-menu-nested nav">
+              <a class="nav-link" href="gestionUsuarios.html">Usuarios</a>
+            </nav>
+          </div>
+          <div class="sb-sidenav-menu-heading">Core</div>
+          <a
+            class="nav-link collapsed"
+            href="#"
+            data-bs-toggle="collapse"
+            data-bs-target="#collapseLayouts1"
+            aria-expanded="false"
+            aria-controls="collapseLayouts1"
+          >
+            <div class="sb-nav-link-icon"><i class="fas fa-columns"></i></div>
+            Reportes
+            <div class="sb-sidenav-collapse-arrow">
+              <i class="fas fa-angle-down"></i>
+            </div>
+          </a>
+          <div
+            class="collapse"
+            id="collapseLayouts1"
+            aria-labelledby="headingOne"
+            data-bs-parent="#sidenavAccordion"
+          >
+            <nav class="sb-sidenav-menu-nested nav">
+              <a class="nav-link" href="admin.html">Solicitudes</a>
+            </nav>
+            <nav class="sb-sidenav-menu-nested nav">
+              <a class="nav-link" href="reportGeneral.html">Reporte general</a>
+            </nav>
+            <nav class="sb-sidenav-menu-nested nav">
+              <a class="nav-link" href="reportHome.html">Generador hogar</a>
+            </nav>
+            <nav class="sb-sidenav-menu-nested nav">
+              <a class="nav-link" href="reportNegocio.html"
+                >Generador Negocio</a
+              >
+            </nav>
+            <nav class="sb-sidenav-menu-nested nav">
+              <a class="nav-link" href="reportCollector.html">Recolector</a>
+            </nav>
+            <nav class="sb-sidenav-menu-nested nav">
+              <a
+                class="nav-link"
+                href="reportTransformador.html
+                                "
+                >Transformador</a
+              >
+            </nav>
+            <nav class="sb-sidenav-menu-nested nav">
+              <a class="nav-link" href="reportCompost.html">Compostaje</a>
+            </nav>
+            <nav class="sb-sidenav-menu-nested nav">
+              <a class="nav-link" href="reportDeletedUsers.html">Eliminados</a>
+            </nav>
+          </div>
+          <div class="sb-sidenav-menu-heading">Interface</div>
+          <a
+            class="nav-link collapsed"
+            href="#"
+            data-bs-toggle="collapse"
+            data-bs-target="#collapseLayouts"
+            aria-expanded="false"
+            aria-controls="collapseLayouts"
+          >
+            <div class="sb-nav-link-icon"><i class="fas fa-columns"></i></div>
+            Monitoreo
+            <div class="sb-sidenav-collapse-arrow">
+              <i class="fas fa-angle-down"></i>
+            </div>
+          </a>
+          <div
+            class="collapse"
+            id="collapseLayouts"
+            aria-labelledby="headingOne"
+            data-bs-parent="#sidenavAccordion"
+          >
+            <nav class="sb-sidenav-menu-nested nav">
+              <a class="nav-link" href="pickups.html">Solicitudes</a>
+            </nav>
+          </div>
+        </div>
+      </div>
+    </nav>
+  </div>
+</div>

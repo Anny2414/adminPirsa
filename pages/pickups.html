@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, shrink-to-fit=no"
+    />
+    <meta name="description" content="" />
+    <meta name="author" content="" />
+    <title>PIRSA ADMIN</title>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    <link
+      href="https://cdn.datatables.net/1.12.1/css/jquery.dataTables.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdn.datatables.net/buttons/2.2.3/css/buttons.dataTables.min.css"
+      rel="stylesheet"
+    />
+    <link href="../css/styles.css" rel="stylesheet" />
+    <script
+      src="https://use.fontawesome.com/releases/v6.1.0/js/all.js"
+      crossorigin="anonymous"
+    ></script>
+  </head>
+
+  <body class="sb-nav-fixed">
+    <div id="menu"></div>
+    <div id="layoutSidenav_content" class="content-left">
+      <main>
+        <div class="container-fluid px-4">
+          <h1 class="mt-4">Monitoreo</h1>
+          <ol class="breadcrumb mb-4">
+            <li class="breadcrumb-item">Dashboard</li>
+            <li class="breadcrumb-item active">Solicitudes Activas</li>
+          </ol>
+          <div class="card mb-4">
+            <div class="card-header">
+              <i class="fas fa-table me-1"></i>
+              Consulta Solicitudes Activas
+            </div>
+            <div class="card-body">
+              <table id="datatablesSimple" class="display" width="100%">
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>Código rol</th>
+                    <th>NOMBRE</th>
+                    <th>FECHA</th>
+                    <th>CORREO</th>
+                    <th>DIRECCION</th>
+                    <th>RECIPIENTES</th>
+                    <th>ESTADO</th>
+                  </tr>
+                </thead>
+              </table>
+            </div>
+          </div>
+        </div>
+      </main>
+      <footer class="py-4 bg-light mt-auto">
+        <div class="container-fluid px-4">
+          <div class="d-flex align-items-center justify-content-between small">
+            <div class="text-muted">Copyright &copy; Grupo Arcoing</div>
+          </div>
+        </div>
+      </footer>
+    </div>
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+      crossorigin="anonymous"
+    ></script>
+    <script src="https://code.jquery.com/jquery-3.5.1.js"></script>
+    <script src="https://cdn.datatables.net/1.12.1/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.2.3/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/pdfmake.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.2.3/js/buttons.html5.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js"></script>
+    <script src="../js/scripts.js"></script>
+    <script type="module">
+      $(document).ready(function () {
+        $("#menu").load("menu.html");
+      });
+
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/9.9.4/firebase-app.js";
+      import {
+        collection,
+        getFirestore,
+        DocumentSnapshot,
+        onSnapshot,
+        query,
+        QuerySnapshot,
+        where,
+        deleteDoc,
+      } from "https://www.gstatic.com/firebasejs/9.9.4/firebase-firestore.js";
+      let arrayData = [];
+      const firebaseConfig = {
+        apiKey: "AIzaSyCkzyHgbeedyrkG8-RjOcb6RhsT21dW8A8",
+        authDomain: "pirso-3fcb4.firebaseapp.com",
+        databaseURL: "https://pirso-3fcb4-default-rtdb.firebaseio.com",
+        projectId: "pirso-3fcb4",
+        storageBucket: "pirso-3fcb4.appspot.com",
+        messagingSenderId: "890693988099",
+        appId: "1:890693988099:web:c531d9b19c21e4b559c336",
+        measurementId: "G-Q4YQ9L5HR1",
+      };
+      const app = initializeApp(firebaseConfig);
+      const db = getFirestore(app);
+      const d = query(
+        collection(db, "pickups"),
+        where("status", "==", "EN_SOLICITUD")
+      );
+
+      onSnapshot(d, (snapshot) => {
+        let requests = snapshot.docs.map((doc) => {
+          let codigoRol = '';
+            if(doc.data().user?.role === '001'){
+              codigoRol = 'RS001-' + doc.id.split('-')[1].toLowerCase()
+            }else if(doc.data().user?.role === '002'){
+              codigoRol = 'NR002-'+ doc.id.split('-')[1].toLowerCase()
+            } else if(doc.data().user?.role === '003') {
+              codigoRol = 'R003-' + doc.id.split('-')[1].toLowerCase()
+            }else {
+              codigoRol = 'T004-' + doc.id.split('-')[1].toLowerCase()
+            }
+            
+          return {
+            _id: codigoRol,
+            role: doc.data().user?.role,
+            name:  doc.data().user.role === '002' ? doc.data().user.business :  doc.data().user.name,
+            fecha: doc.data().user.role === '002' ?  doc.data().schedule.text : moment(new Date(doc.data().created_at.toDate())).format("DD/MM/yyyy h:mm:ss a"),
+            email: doc.data().user?.email,
+            direccion: doc.data().address,
+            bolsas: doc.data().bags,
+            estado: doc.data().status,
+          };
+        });
+
+        $("#datatablesSimple").DataTable({
+          info: true,
+          dom: "Bfrtip",
+          buttons: [
+            "copyHtml5",
+            "excelHtml5",
+            "csvHtml5",
+            {
+              extend: "pdfHtml5",
+              orientation: "landscape",
+              pageSize: "LEGAL",
+              text: "PDF",
+              titleAttr: "PDF",
+            },
+            {
+              text: "Recargar",
+              action: function (e, dt, node, config) {
+                location.reload();
+              },
+            },
+          ],
+          data: requests,
+          language: {
+            decimal: "",
+            emptyTable: "No hay información",
+            info: "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
+            infoEmpty: "Mostrando 0 to 0 of 0 Entradas",
+            infoFiltered: "(Filtrado de _MAX_ total entradas)",
+            infoPostFix: "",
+            thousands: ",",
+            lengthMenu: "Mostrar _MENU_ Entradas",
+            loadingRecords: "Cargando...",
+            processing: "Procesando...",
+            search: "Buscar:",
+            zeroRecords: "Sin resultados encontrados",
+            paginate: {
+              first: "Primero",
+              last: "Ultimo",
+              next: "Siguiente",
+              previous: "Anterior",
+            },
+          },
+          bDestroy: true,
+          columns: [
+            { data: "_id" },
+            { data: "role" },
+            { data: "name" },
+            { data: "fecha" },
+            { data: "email" },
+            { data: "direccion" },
+            { data: "bolsas" },
+            { data: "estado" },
+          ],
+        });
+      });
+    </script>
+  </body>
+</html>
